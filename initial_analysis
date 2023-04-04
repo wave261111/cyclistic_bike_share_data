@@ -1,0 +1,208 @@
+
+
+
+/* 
+First I unioned all of the 12 monthly bike trip data tables into one from Jan 1, 2022 to Dec 31, 2022.
+/*
+
+
+CREATE TABLE monthly_bike_share.bike_share_data2022 AS 
+SELECT *
+FROM (
+
+SELECT * 
+FROM `cyclistics-bike-sharing.monthly_bike_share.Jan_2022`
+UNION ALL
+SELECT *
+FROM `cyclistics-bike-sharing.monthly_bike_share.Feb2022`
+UNION ALL
+SELECT *
+FROM `cyclistics-bike-sharing.monthly_bike_sharing.Mar2022`
+UNION ALL
+SELECT *
+FROM `cyclistics-bike-sharing.monthly_bike_sharing.Apr2022`
+UNION ALL
+SELECT *
+FROM `cyclistics-bike-sharing.monthly_bike_sharing.May2022`
+UNION ALL
+SELECT *
+FROM `cyclistics-bike-sharing.monthly_bike_sharing.Jun2022`
+UNION ALL
+SELECT *
+FROM `cyclistics-bike-sharing.monthly_bike_sharing.Jul2022`
+UNION ALL
+SELECT *
+FROM `cyclistics-bike-sharing.monthly_bike_sharing.Aug2022`
+UNION ALL
+SELECT *
+FROM `cyclistics-bike-sharing.monthly_bike_sharing.Sep2022`
+UNION ALL
+SELECT *
+FROM `cyclistics-bike-sharing.monthly_bike_sharing.Oct2022`
+UNION ALL
+SELECT *
+FROM `cyclistics-bike-sharing.monthly_bike_sharing.Nov2022`
+UNION ALL
+SELECT *
+FROM `cyclistics-bike-sharing.monthly_bike_sharing.Dec2022`
+);
+
+SELECT *
+FROM `cyclistics-bike-sharing.monthly_bike_share_data2022;
+
+-------------------Now analyze all columns starting from left to right for data cleaning----------------
+
+#1.ride_id
+- Here I will check the different length combinations for ride_id
+- Make sure all of the values are unique 
+*/
+
+SELECT LENGTH(ride_id), count(*)
+FROM `cyclistics-bike-sharing.monthly_bike_share_data_2022`
+GROUP BY LENGTH(ride_id);
+
+SELECT COUNT (DISTINCT ride_id);
+FROM `cyclistics-bike-sharing.monthly_bike_share_data_2022`;
+
+*/
+All of the ride_id strings are 16 characters and are each unique and will not require cleaning
+*/
+
+#2.rideable_type
+
+SELECT DISTINCT rideable_type
+FROM `cyclistics-bike-sharing.monthly_bike_share_data2022`;
+
+*/
+There are three types of 'rideable_type' labeled above
+classic_bike, electric_bike and docked_bike.
+docked_bike is not correct and we need to change it to classic_bike.
+*/
+
+*/
+#3. We have to check the started_at and ended_at columns.
+We need to make sure that the time length is longer than 1 minute 
+but shorter than 1 day.
+*/
+
+SELECT *
+FROM `cyclistics-bike-sharing.monthly_bike_share_data2022`
+WHERE TIMESTAMP_DIFF(ended_at, started_at, MINUTE) <= 1 OR
+  TIMESTAMP_DIFF(ended_at, started_at, MINUTE) >= 1440;
+  
+*/
+Now we check the start_station_name and end_station_name/id columns 
+for errors.
+*/
+
+SELECT start_station_name, count(*)
+FROM `cyclistics-bike-sharing.monthly_bike_share_data2022`
+GROUP BY end_station_name
+ORDER BY end_station_name;
+
+SELECT COUNT(DISTINCT(start_station_name)) AS unq_start_name.
+  COUNT(DISTINCT(end_station_name)) AS unq_end_name
+  COUNT(DISTINCT(start_station_id)) AS unq_start_id
+  COUNT(DISTINCT(end_station_id)) AS unq_end_id
+FROM `cyclistics-bike-sharing.monthly_bike_share_data2022`
+
+/*
+- Cyclistic uses the 'Temp' substring when repairs are being done to a docking station.
+- We will remove trailing and leading spaces.
+- Most of the start and end station names have inconistencies and differing string lengths.
+- There are start and end_names that are filled with 'DIVVY CASSETTE REPAIR MOBILE STATION',
+  "Lyft Driver Center Private Rack', '351', 'WEST CHI-WATSON', Hubbard Bike-checking 
+  (LBS-WH-TEST). These are maintenance trips and we will get rid of them.
+*/
+
+#5. Now we check for NULLS in the columns for start/end_station names
+
+SELECT rideable_type, count(*) as num_of_rides
+FROM `cyclistics-bike-sharing.monthly_bike_share_data2022`
+WHERE start_station_name IS NULL AND start_station_id IS NULL OR
+    end_station_name IS NULL AND end_station_id IS NULL
+GROUP BY rideable_type;
+
+/*
+- Electric bikes don't necessarily need to be locked into a docking station 
+while classic_bikes and docked_bikes always have a start and end to their trips.
+- We will change the null station names to "Bike Lock" for the electric bikes.
+- We will get rid of the classic and docked bike trips that don't have a start or end station
+name or ID.
+*/
+
+#6. Now we'll check the rows where latitude and longitude are null
+
+SELECT *
+FROM `cyclistics-bike-sharing.monthly_bike_share_data2022`
+WHERE start_lat is NULL OR
+  start_lng is NULL OR
+  end_lat IS NULL OR
+  end_lng IS NULL;
+  
+  
+  
+#7. Now we'll make sure there are only two member types for the member_casual column
+
+  SELECT DISTINCT member_casual
+  FROM `cyclistics-bike-sharing.monthly_bike_share_data2022`
+  
+  /* There are indeed only two member types in the column */
+  
+ /* Now we are ready to analyze the data and clean it */
+ 
+ 
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
